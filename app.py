@@ -151,26 +151,34 @@ def get_filtered_students(req_args, include_marks=True):
     # Filter by Student ID
     if student_id:
         try:
-            data = [s for s in data if s['student_id'] == int(student_id)]
+            data = [s for s in data if str(s.get('student_id')) == str(student_id)]
         except ValueError:
             pass
 
-    # Slicing early for performance
-    sliced_data = data[:200]
+    # Filter by Class and Subject early (before enrichment loop) to save time
+    if class_filter and class_filter != 'All':
+        data = [s for s in data if get_class(s.get('student_id', 0)) == class_filter]
 
-    # Enrich each student with restricted + dynamic data
+    if subject_filter and subject_filter != 'All':
+        data = [s for s in data if get_subject(s.get('student_id', 0)) == subject_filter]
+
     enriched = []
-    for s in sliced_data:
+    for s in data:
         s_id = str(s['student_id'])
         marks_entry = marks_data.get(s_id)
+
+        # Compute dynamic multi-factor risk
+        dyn_score, dyn_label, insights = calculate_risk(s, marks_entry)
+        
+        # Filter by risk label
+        if risk_label and risk_label != 'All' and dyn_label != risk_label:
+            continue
 
         # Add restricted marks
         if include_marks and marks_entry:
             s['internal_marks'] = marks_entry.get('internal_marks', 'N/A')
             s['mid_exam_marks'] = marks_entry.get('mid_exam_marks', 'N/A')
 
-        # Compute dynamic multi-factor risk
-        dyn_score, dyn_label, insights = calculate_risk(s, marks_entry)
         s['dynamic_risk_score'] = dyn_score
         s['dynamic_risk_label'] = dyn_label
         s['insights'] = insights
@@ -184,17 +192,11 @@ def get_filtered_students(req_args, include_marks=True):
 
         enriched.append(s)
 
-    # Filter after enrichment (needs dynamic label)
-    if risk_label and risk_label != 'All':
-        enriched = [s for s in enriched if s['dynamic_risk_label'] == risk_label]
+        # Break early once we have enough results to render the UI efficiently
+        if len(enriched) >= 100:
+            break
 
-    if subject_filter and subject_filter != 'All':
-        enriched = [s for s in enriched if s['subject'] == subject_filter]
-
-    if class_filter and class_filter != 'All':
-        enriched = [s for s in enriched if s['class_name'] == class_filter]
-
-    return enriched[:100]
+    return enriched
 
 
 # ---------- Routes ----------
