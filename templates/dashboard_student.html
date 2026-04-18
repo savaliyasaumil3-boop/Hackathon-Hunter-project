@@ -3,109 +3,212 @@
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
+{% if student %}
 <div class="glass-panel" style="margin-bottom: 24px;">
-    <h2>Welcome back, <span class="gradient-text">{{ student.name }}</span></h2>
-    <p style="color: var(--text-secondary);">Student ID: {{ student.id }} | View your academic progress below</p>
+    <h2>Welcome back, <span class="gradient-text">Student #{{ student.student_id }}</span></h2>
+    <p style="color: var(--text-secondary);">{{ student.subject }} · {{ student.class_name }}</p>
 </div>
 
-{% if student.is_high_risk %}
-<div class="glass-panel risk-alert">
-    ⚠️ <strong>High Risk Alert!</strong> You have been flagged as high risk for upcoming submissions in {{ student.subject }}. Please check the intervention suggestions below and schedule an extra class.
+{% if student.dynamic_risk_label == 'High' %}
+<div class="glass-panel risk-alert" style="margin-bottom: 24px;">
+    ⚠️ <strong>High Risk Alert!</strong> Our system has flagged your profile as high-risk for academic difficulty.
+    Please reach out to your Faculty Mentor immediately.
+</div>
+{% elif student.dynamic_risk_label == 'Medium' %}
+<div class="glass-panel" style="background: rgba(217,119,6,0.08); border: 1px solid rgba(217,119,6,0.4); border-radius: 12px; padding: 16px; margin-bottom: 24px; color: var(--accent-gold);">
+    ⚡ <strong>Medium Risk:</strong> Some of your metrics need attention. Review the breakdown below.
 </div>
 {% endif %}
 
 <div class="grid-container">
-    <!-- Academic Progress -->
+    <!-- Metric Breakdown -->
     <div class="glass-panel">
-        <h3>Subject Overview: {{ student.subject }}</h3>
-        
-        <div style="margin-top: 16px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
-                <span>Assignments Completed</span>
-                <span>{{ student.assignments_completed }} / {{ student.assignments_total }}</span>
+        <h3 style="margin-bottom: 16px;">Current Metric Breakdown</h3>
+
+        <div style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                <span>Overall Marks</span><span>{{ student.marks }}%</span>
             </div>
             <div class="progress-container">
-                <div class="progress-bar" style="width: {{ (student.assignments_completed / student.assignments_total) * 100 }}%;"></div>
+                <div class="progress-bar"
+                    style="width: {{ student.marks }}%; background: {% if student.marks < 50 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
+                </div>
             </div>
         </div>
 
-        <div style="margin-top: 24px;">
-             <h4>Current Exam Score: {{ student.exam_score }}%</h4>
+        <div style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                <span>Attendance</span><span>{{ student.attendance }}%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar"
+                    style="width: {{ student.attendance }}%; background: {% if student.attendance < 60 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                <span>Assignment Completion</span><span>{{ student.assignment }}%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar"
+                    style="width: {{ student.assignment }}%; background: {% if student.assignment < 60 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                <span>LMS Engagement</span><span>{{ student.lms }}%</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar"
+                    style="width: {{ student.lms }}%; background: {% if student.lms < 40 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 16px; padding: 12px; background: rgba(79,70,229,0.07); border-radius: 8px;">
+            <h4>System Risk Score:
+                <span style="{% if student.dynamic_risk_label == 'High' %}color: var(--accent-red);{% elif student.dynamic_risk_label == 'Medium' %}color: var(--accent-gold);{% else %}color: var(--accent-green);{% endif %}">
+                    {{ student.dynamic_risk_score }} / 100
+                </span>
+                <span style="color: var(--text-secondary); font-size: 0.85rem;">({{ student.dynamic_risk_label }})</span>
+            </h4>
         </div>
     </div>
 
-    <!-- Performance Chart -->
+    <!-- Explainable Insights -->
     <div class="glass-panel">
-        <h3>Performance Before vs After</h3>
-        <canvas id="performanceChart"></canvas>
+        <h3 style="margin-bottom: 16px;">⚡ Why You Are At Risk</h3>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
+            These are the top contributing factors the system identified in your academic profile:
+        </p>
+        {% for insight in student.insights %}
+        <div style="background: rgba(220,38,38,0.07); border-left: 3px solid rgba(220,38,38,0.45); border-radius: 6px; padding: 10px 14px; margin-bottom: 10px;">
+            <p style="font-size: 0.88rem; color: #b91c1c;">• {{ insight }}</p>
+        </div>
+        {% endfor %}
+
+        <div style="margin-top: 20px; background: rgba(124,58,237,0.07); border-radius: 8px; padding: 14px;">
+            <p style="font-size: 0.82rem; color: var(--text-secondary);">💡 <strong style="color: var(--text-primary);">Recommendation:</strong>
+                {% if student.dynamic_risk_label == 'High' %}
+                Contact your Faculty Mentor immediately and attend all remedial classes.
+                {% elif student.dynamic_risk_label == 'Medium' %}
+                Improve your attendance and submit pending assignments to reduce your risk score.
+                {% else %}
+                Great job! Keep up the consistent performance.
+                {% endif %}
+            </p>
+        </div>
     </div>
 </div>
 
-<div class="grid-container" style="margin-top: 24px;">
-    <!-- Teacher Suggestion -->
-    <div class="glass-panel" style="border-left: 4px solid var(--accent-blue);">
-        <h3 style="color: var(--accent-blue);">Teacher Suggestion</h3>
-        <p style="margin-top: 8px;">{{ student.teacher_suggestion }}</p>
-    </div>
-
-    <!-- Mentor Suggestion -->
-    <div class="glass-panel" style="border-left: 4px solid var(--accent-purple);">
-        <h3 style="color: var(--accent-purple);">Faculty Mentor Suggestion</h3>
-        <p style="margin-top: 8px;">{{ student.mentor_suggestion }}</p>
-        
-        {% if student.is_high_risk %}
-        <button class="btn" style="margin-top: 16px; background: var(--accent-red);">Request Extra Class</button>
-        {% endif %}
-    </div>
-</div>
-
+<!-- Performance Distribution Pie Chart -->
 <div class="glass-panel" style="margin-top: 24px;">
-    <h3>Doubt Solving Portal</h3>
-    <textarea placeholder="Type your question here to send to your teacher/mentor..." style="width: 100%; height: 100px; padding: 12px; margin-top: 12px; border-radius: 8px; background: rgba(15, 23, 42, 0.5); color: white; border: 1px solid var(--border-glass);"></textarea>
-    <button class="btn" style="margin-top: 12px;">Submit Doubt</button>
+    <h3 style="margin-bottom: 4px;">📊 Performance Distribution</h3>
+    <p style="color: var(--text-secondary); font-size: 0.83rem; margin-bottom: 24px;">Visual breakdown of your 4 core academic metrics.</p>
+
+    <div style="display: grid; grid-template-columns: 240px 1fr; align-items: center; gap: 40px;">
+        <!-- Chart wrapper — strictly bounded -->
+        <div style="position: relative; width: 200px; height: 200px; margin: 0 auto;">
+            <canvas id="performancePie" width="200" height="200"></canvas>
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                <p style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1; margin: 0;">{{ student.dynamic_risk_score }}</p>
+                <p style="font-size: 0.68rem; color: var(--text-secondary); margin: 2px 0 0;">Risk Score</p>
+            </div>
+        </div>
+
+        <!-- Legend -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 12px; height: 12px; border-radius: 3px; background: #3b82f6; flex-shrink: 0;"></div>
+                <div>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">Marks</p>
+                    <p style="font-size: 1rem; font-weight: 700; margin: 0;">{{ student.marks }}%</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 12px; height: 12px; border-radius: 3px; background: #8b5cf6; flex-shrink: 0;"></div>
+                <div>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">Attendance</p>
+                    <p style="font-size: 1rem; font-weight: 700; margin: 0;">{{ student.attendance }}%</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 12px; height: 12px; border-radius: 3px; background: #10b981; flex-shrink: 0;"></div>
+                <div>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">Assignment</p>
+                    <p style="font-size: 1rem; font-weight: 700; margin: 0;">{{ student.assignment }}%</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 12px; height: 12px; border-radius: 3px; background: #f59e0b; flex-shrink: 0;"></div>
+                <div>
+                    <p style="font-size: 0.82rem; color: var(--text-secondary); margin: 0;">LMS Engagement</p>
+                    <p style="font-size: 1rem; font-weight: 700; margin: 0;">{{ student.lms }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Past Exam', 'Current Exam'],
-                datasets: [{
-                    label: 'Score %',
-                    data: [{{ student.past_exam_score }}, {{ student.exam_score }}],
-                    backgroundColor: [
-                        'rgba(59, 130, 246, 0.6)',
-                        'rgba(139, 92, 246, 0.6)'
-                    ],
-                    borderColor: [
-                        'rgba(59, 130, 246, 1)',
-                        'rgba(139, 92, 246, 1)'
-                    ],
-                    borderWidth: 1,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { color: '#94a3b8' }
-                    },
-                    x: {
-                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                        ticks: { color: '#94a3b8' }
+(function() {
+    const ctx = document.getElementById('performancePie').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Marks', 'Attendance', 'Assignment', 'LMS'],
+            datasets: [{
+                data: [{{ student.marks }}, {{ student.attendance }}, {{ student.assignment }}, {{ student.lms }}],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.9)',
+                    'rgba(139, 92, 246, 0.9)',
+                    'rgba(16, 185, 129, 0.9)',
+                    'rgba(245, 158, 11, 0.9)'
+                ],
+                borderColor: 'rgba(240, 244, 255, 0.9)',
+                borderWidth: 3,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: false,
+            cutout: '65%',
+            animation: { animateRotate: true, duration: 900, easing: 'easeInOutQuart' },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(item) {
+                            return '  ' + item.label + ': ' + item.parsed + '%';
+                        }
                     }
-                },
-                plugins: {
-                    legend: { display: false }
                 }
             }
-        });
+        }
     });
+})();
 </script>
+
+
+<!-- Doubt Solving Portal -->
+<div class="glass-panel" style="margin-top: 24px;">
+    <h3>Doubt Solving Portal</h3>
+    <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 8px 0 12px;">Submit your academic questions to your Teacher or Mentor.</p>
+    <textarea placeholder="Type your question here to send to your teacher/mentor..."
+        style="width: 100%; height: 100px; padding: 12px; margin-top: 4px; border-radius: 8px; background: rgba(240,244,255,0.8); color: var(--text-primary); border: 1.5px solid var(--border-glass); resize: none;"></textarea>
+    <button class="btn" style="margin-top: 12px;">Submit Doubt</button>
+</div>
+
+{% else %}
+<div class="glass-panel risk-alert" style="margin-top: 24px; border-color: var(--accent-red);">
+    ⚠️ <strong>Error!</strong> Student with that ID was not found in the dataset. Please go back and try another ID (1
+    to 50000).
+    <br><br>
+    <a href="{{ url_for('login') }}" class="btn" style="background: rgba(239, 68, 68, 0.2);">Return to Login</a>
+</div>
+{% endif %}
 {% endblock %}

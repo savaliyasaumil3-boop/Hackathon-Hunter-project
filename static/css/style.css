@@ -1,16 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
 
 :root {
-    --bg-dark: #0f172a;
-    --card-glass: rgba(30, 41, 59, 0.7);
-    --border-glass: rgba(255, 255, 255, 0.1);
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent-blue: #3b82f6;
-    --accent-purple: #8b5cf6;
-    --accent-red: #ef4444;
-    --accent-green: #10b981;
+    --bg-light: #f0f4ff;
+    --card-glass: rgba(255, 255, 255, 0.75);
+    --border-glass: rgba(99, 102, 241, 0.15);
+    --text-primary: #1e1b4b;
+    --text-secondary: #6b7280;
+    --accent-blue: #4f46e5;
+    --accent-purple: #7c3aed;
+    --accent-red: #dc2626;
+    --accent-green: #059669;
+    --accent-gold: #d97706;
     --gradient-primary: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+    --shadow-card: 0 4px 24px rgba(79, 70, 229, 0.1);
+    --shadow-hover: 0 12px 40px rgba(79, 70, 229, 0.18);
 }
 
 * {
@@ -21,34 +24,35 @@
 }
 
 body {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-light);
     color: var(--text-primary);
     min-height: 100vh;
     padding: 2rem;
-    background-image: 
-        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.15), transparent 25%);
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08), transparent 30%),
+        radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.08), transparent 30%);
     background-attachment: fixed;
 }
 
 .glass-panel {
     background: var(--card-glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border-glass);
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-card);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .glass-panel:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
 }
 
 h1, h2, h3 {
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .gradient-text {
@@ -65,36 +69,43 @@ h1, h2, h3 {
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.3s ease, transform 0.2s ease;
+    transition: opacity 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
     text-decoration: none;
     display: inline-block;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
 }
 
 .btn:hover {
-    opacity: 0.9;
-    transform: scale(1.05);
+    opacity: 0.92;
+    transform: scale(1.04);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
 }
 
-input, select {
+input, select, textarea {
     width: 100%;
     padding: 12px;
     margin: 8px 0;
-    background: rgba(15, 23, 42, 0.5);
-    border: 1px solid var(--border-glass);
-    color: white;
+    background: rgba(240, 244, 255, 0.8);
+    border: 1.5px solid var(--border-glass);
+    color: var(--text-primary);
     border-radius: 8px;
     outline: none;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
     border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+input::placeholder, textarea::placeholder {
+    color: var(--text-secondary);
 }
 
 /* Specific Alerts */
 .risk-alert {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid var(--accent-red);
+    background: rgba(220, 38, 38, 0.07);
+    border: 1px solid rgba(220, 38, 38, 0.4);
     color: var(--accent-red);
     padding: 16px;
     border-radius: 8px;
@@ -107,16 +118,16 @@ input:focus, select:focus {
 }
 
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    0%   { box-shadow: 0 0 0 0px rgba(220, 38, 38, 0.35); }
+    70%  { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+    100% { box-shadow: 0 0 0 0px rgba(220, 38, 38, 0); }
 }
 
 .progress-container {
     width: 100%;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(79, 70, 229, 0.08);
     border-radius: 8px;
-    height: 12px;
+    height: 10px;
     overflow: hidden;
     margin-top: 8px;
 }
@@ -133,4 +144,58 @@ input:focus, select:focus {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 24px;
+}
+
+/* Risk Badges */
+.badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.badge-red {
+    background: rgba(220, 38, 38, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.badge-gold {
+    background: rgba(217, 119, 6, 0.1);
+    color: var(--accent-gold);
+    border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.badge-green {
+    background: rgba(5, 150, 105, 0.1);
+    color: var(--accent-green);
+    border: 1px solid rgba(5, 150, 105, 0.3);
+}
+
+.student-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.student-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Nav / Header */
+header a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+header a:hover {
+    color: var(--accent-blue);
+}
+
+/* Table rows */
+tbody tr:hover {
+    background: rgba(79, 70, 229, 0.04);
 }

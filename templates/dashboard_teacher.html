@@ -4,34 +4,144 @@
 
 {% block content %}
 <div class="glass-panel" style="margin-bottom: 24px;">
-    <h2>Instructor Dashboard</h2>
-    <p style="color: var(--text-secondary);">Manage your class, evaluate exams, and provide targeted feedback.</p>
+    <h2 class="gradient-text">Instructor Dashboard</h2>
+    <p style="color: var(--text-secondary);">Multi-factor risk analytics | Filter students by class, subject and severity.</p>
 </div>
 
+<!-- Search & Filter Row -->
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <form method="GET" action="{{ url_for('teacher_dashboard') }}" style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Risk Level</label>
+            <select name="risk_label">
+                <option value="All">All Risk Levels</option>
+                <option value="High" {% if request.args.get('risk_label') == 'High' %}selected{% endif %}>🔴 High Risk</option>
+                <option value="Medium" {% if request.args.get('risk_label') == 'Medium' %}selected{% endif %}>🟡 Medium Risk</option>
+                <option value="Low" {% if request.args.get('risk_label') == 'Low' %}selected{% endif %}>🟢 Low Risk</option>
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Subject</label>
+            <select name="subject">
+                {% for s in subjects %}
+                <option value="{{ s }}" {% if request.args.get('subject') == s %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Class</label>
+            <select name="class_name">
+                {% for c in classes %}
+                <option value="{{ c }}" {% if request.args.get('class_name') == c %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Student ID</label>
+            <input type="number" name="student_id" placeholder="e.g. 43" value="{{ request.args.get('student_id', '') }}">
+        </div>
+        <div style="display: flex; align-items: flex-end; padding-bottom: 8px;">
+            <button type="submit" class="btn">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<!-- Student Cards -->
 <div class="grid-container">
     {% for student in students %}
-    <div class="glass-panel" style="{% if student.is_high_risk %}border-top: 4px solid var(--accent-red);{% else %}border-top: 4px solid var(--accent-green);{% endif %}">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3>{{ student.name }} ({{ student.id }})</h3>
-            {% if student.is_high_risk %}
-                <span style="background: rgba(239, 68, 68, 0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">High Risk</span>
+    <div class="glass-panel student-card" style="
+        {% if student.dynamic_risk_label == 'High' %}border-top: 4px solid var(--accent-red);
+        {% elif student.dynamic_risk_label == 'Medium' %}border-top: 4px solid gold;
+        {% else %}border-top: 4px solid var(--accent-green);{% endif %}">
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div>
+                <h3 style="margin-bottom: 2px;">Student #{{ student.student_id }}</h3>
+                <span style="font-size: 0.78rem; color: var(--text-secondary);">{{ student.subject }} · {{ student.class_name }}</span>
+            </div>
+            {% if student.dynamic_risk_label == 'High' %}
+                <span class="badge badge-red">High Risk ({{ student.dynamic_risk_score }})</span>
+            {% elif student.dynamic_risk_label == 'Medium' %}
+                <span class="badge badge-gold">Medium Risk ({{ student.dynamic_risk_score }})</span>
             {% else %}
-                <span style="background: rgba(16, 185, 129, 0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">On Track</span>
+                <span class="badge badge-green">Low Risk ({{ student.dynamic_risk_score }})</span>
             {% endif %}
         </div>
 
-        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
-            <p><strong>Assignments:</strong> {{ student.assignments_completed }} / {{ student.assignments_total }} completed</p>
-            <p><strong>Recent Exam:</strong> {{ student.exam_score }}% (Past: {{ student.past_exam_score }}%)</p>
+        <!-- Metrics Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
+            <p><strong style="color: var(--text-primary);">Marks:</strong> {{ student.marks }}%</p>
+            <p><strong style="color: var(--text-primary);">Attendance:</strong> {{ student.attendance }}%</p>
+            <p><strong style="color: var(--text-primary);">Assignment:</strong> {{ student.assignment }}%</p>
+            <p><strong style="color: var(--text-primary);">LMS:</strong> {{ student.lms }}</p>
         </div>
 
-        <div style="margin-top: 16px;">
-            <label style="font-size: 0.85rem; color: var(--text-secondary);">Your Suggestion/Feedback:</label>
-            <textarea style="width: 100%; height: 60px; padding: 8px; margin-top: 4px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: white; border-radius: 4px;">{{ student.teacher_suggestion }}</textarea>
-            <button class="btn" style="width: 100%; margin-top: 8px; padding: 8px;">Update Evaluation</button>
+        <!-- Restricted Exam Data -->
+        <div style="background: rgba(79,70,229,0.05); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85rem;">
+            <p style="color: var(--accent-blue);"><strong>Internal:</strong> {{ student.internal_marks }}/50</p>
+            <p style="color: var(--accent-purple);"><strong>Mid Exam:</strong> {{ student.mid_exam_marks }}/30</p>
         </div>
+
+        <!-- Explainable Insights -->
+        <div style="background: rgba(239,68,68,0.07); border-left: 3px solid rgba(239,68,68,0.5); border-radius: 4px; padding: 8px 12px; margin-bottom: 12px;">
+            <p style="font-size: 0.78rem; color: #b91c1c; font-weight: 600; margin-bottom: 4px;">⚡ Risk Drivers</p>
+            {% for insight in student.insights %}
+            <p style="font-size: 0.8rem; color: #b91c1c;">• {{ insight }}</p>
+            {% endfor %}
+        </div>
+
+        <!-- Before / After Improvement -->
+        {% if student.improvement %}
+        <div style="background: rgba(16,185,129,0.08); border-left: 3px solid var(--accent-green); border-radius: 4px; padding: 8px 12px; margin-bottom: 12px;">
+            <p style="font-size: 0.78rem; color: var(--accent-green); font-weight: 600; margin-bottom: 4px;">📈 Post-Intervention Improvement</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.8rem; color: #6ee7b7;">
+                <span>Attendance: +{{ student.improvement.attendance_delta }}%</span>
+                <span>Marks: +{{ student.improvement.marks_delta }}%</span>
+                <span>Assignment: +{{ student.improvement.assignment_delta }}%</span>
+                <span>Risk↓: -{{ student.improvement.risk_delta }} pts</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">{{ student.improvement.intervention_type }} · {{ student.improvement.intervention_date }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Feedback & Intervention -->
+        <textarea id="notes-{{ student.student_id }}" placeholder="Log your intervention remarks..."
+            style="width: 100%; height: 55px; padding: 8px; background: rgba(240,244,255,0.8); border: 1.5px solid var(--border-glass); color: var(--text-primary); border-radius: 6px; font-size: 0.8rem; resize: none;"></textarea>
+        <select id="type-{{ student.student_id }}" style="margin-top: 6px; font-size: 0.8rem;">
+            <option>Counselling Session</option>
+            <option>Remedial Class</option>
+            <option>Assignment Extension</option>
+            <option>Parent Meeting</option>
+        </select>
+        <button class="btn" style="width: 100%; margin-top: 8px; padding: 8px; font-size: 0.82rem;"
+            onclick="logIntervention({{ student.student_id }})">📋 Log Intervention</button>
+    </div>
+    {% else %}
+    <div style="grid-column: 1/-1; text-align: center; padding: 48px; color: var(--text-secondary);">
+        <p style="font-size: 1.1rem;">No students match the current filters.</p>
     </div>
     {% endfor %}
 </div>
+
+<div id="toast" style="display:none; position:fixed; bottom:24px; right:24px; background: var(--accent-green); color:white; padding: 12px 20px; border-radius: 10px; font-weight: 600; z-index: 999; transition: opacity 0.3s;"></div>
+
+<script>
+function logIntervention(sid) {
+    const notes = document.getElementById('notes-' + sid).value;
+    const type = document.getElementById('type-' + sid).value;
+    fetch('/intervene', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id: sid, notes: notes, type: type })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const toast = document.getElementById('toast');
+        toast.textContent = '✅ ' + data.message;
+        toast.style.display = 'block';
+        toast.style.opacity = 1;
+        setTimeout(() => { toast.style.opacity = 0; setTimeout(() => { toast.style.display = 'none'; }, 300); }, 3000);
+    });
+}
+</script>
 {% endblock %}

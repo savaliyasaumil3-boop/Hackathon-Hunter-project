@@ -1,0 +1,24 @@
+{
+  "12": {
+    "type": "Counselling Session",
+    "notes": "",
+    "date": "2026-04-18 16:21",
+    "snapshot": {
+      "attendance": 90,
+      "marks": 87,
+      "assignment": 37,
+      "lms": 45
+    }
+  },
+  "104": {
+    "type": "Counselling Session",
+    "notes": "Advised to improve attendance.",
+    "date": "2026-04-18 16:29",
+    "snapshot": {
+      "attendance": 44,
+      "marks": 54,
+      "assignment": 40,
+      "lms": 55
+    }
+  }
+}

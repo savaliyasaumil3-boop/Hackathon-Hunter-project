@@ -10,15 +10,27 @@
         <form method="POST" action="{{ url_for('login') }}">
             <div style="text-align: left; margin-bottom: 1rem;">
                 <label for="role" style="color: var(--text-secondary); font-size: 0.9rem;">Select your role:</label>
-                <select name="role" id="role" required>
+                <select name="role" id="role" required onchange="toggleStudentId()">
                     <option value="student">Student</option>
                     <option value="teacher">Teacher</option>
                     <option value="mentor">Faculty Mentor</option>
                 </select>
             </div>
             
+            <div id="studentIdDiv" style="text-align: left; margin-bottom: 1rem;">
+                <label for="student_id" style="color: var(--text-secondary); font-size: 0.9rem;">Enter Student ID:</label>
+                <input type="number" name="student_id" id="student_id" placeholder="e.g. 4" value="4">
+            </div>
+            
             <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Login to Dashboard</button>
         </form>
+        
+        <script>
+            function toggleStudentId() {
+                var role = document.getElementById('role').value;
+                document.getElementById('studentIdDiv').style.display = (role === 'student') ? 'block' : 'none';
+            }
+        </script>
         
         <p style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.85rem;">
             *For this hackathon prototype, authentication is simulated. Select a role to view its specific dashboard.

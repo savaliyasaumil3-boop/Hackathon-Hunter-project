@@ -5,65 +5,174 @@
 {% block content %}
 <div class="glass-panel" style="margin-bottom: 24px;">
     <h2 style="color: var(--accent-purple);">Faculty Mentor Dashboard</h2>
-    <p style="color: var(--text-secondary);">Holistic tracking of mentee progress, interventions, and extra classes.</p>
+    <p style="color: var(--text-secondary);">Holistic mentee tracking · Interventions · Before/After Analytics</p>
 </div>
 
-<div style="display: flex; gap: 24px;">
-    <!-- High Risk Overview -->
-    <div class="glass-panel" style="flex: 1;">
-        <h3>Mentee Intervention Required</h3>
-        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">Students identified by the system requiring immediate mentor engagement.</p>
-        
+<!-- 🔔 Automated Alerts Banner -->
+{% if alerts %}
+<div style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.4); border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+    <p style="color: var(--accent-red); font-weight: 700; font-size: 0.95rem; margin-bottom: 10px;">
+        🔔 Timely Alert — {{ alerts|length }} High-Risk Students Need Immediate Attention Before Exams!
+    </p>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        {% for a in alerts %}
+        <div style="background: rgba(220,38,38,0.1); border-radius: 8px; padding: 8px 16px; font-size: 0.82rem; color: #b91c1c;">
+            <strong>Student #{{ a.student_id }}</strong> · Risk Score: {{ a.dynamic_risk_score }}
+            <span style="display:block; font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">{{ a.insights[0] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Filter Bar -->
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <form method="GET" action="{{ url_for('mentor_dashboard') }}" style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;">
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Risk Level</label>
+            <select name="risk_label">
+                <option value="All">All Risk Levels</option>
+                <option value="High" {% if request.args.get('risk_label') == 'High' %}selected{% endif %}>🔴 High</option>
+                <option value="Medium" {% if request.args.get('risk_label') == 'Medium' %}selected{% endif %}>🟡 Medium</option>
+                <option value="Low" {% if request.args.get('risk_label') == 'Low' %}selected{% endif %}>🟢 Low</option>
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Subject</label>
+            <select name="subject">
+                {% for s in subjects %}<option value="{{ s }}" {% if request.args.get('subject') == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Class</label>
+            <select name="class_name">
+                {% for c in classes %}<option value="{{ c }}" {% if request.args.get('class_name') == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+            </select>
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 4px;">Student ID</label>
+            <input type="number" name="student_id" placeholder="e.g. 5" value="{{ request.args.get('student_id', '') }}">
+        </div>
+        <div style="display: flex; align-items: flex-end; padding-bottom: 8px;">
+            <button type="submit" class="btn" style="background: var(--accent-purple);">Search Mentees</button>
+        </div>
+    </form>
+</div>
+
+<div style="display: flex; gap: 24px; flex-wrap: wrap;">
+    <!-- Left: High Risk Intervention Panel -->
+    <div class="glass-panel" style="flex: 1; min-width: 280px;">
+        <h3 style="margin-bottom: 16px;">⚠️ Intervention Required</h3>
         {% for student in students %}
-            {% if student.is_high_risk %}
-            <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent-red); margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <strong>{{ student.name }} ({{ student.subject }})</strong>
-                    <span style="color: var(--accent-red); font-weight: bold;">{{ student.exam_score }}%</span>
-                </div>
-                <p style="font-size: 0.85rem; margin-top: 4px;">{{ student.teacher_suggestion }}</p>
-                <div style="margin-top: 8px; display: flex; gap: 8px;">
-                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Schedule Extra Class</button>
-                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem; background: transparent; border: 1px solid var(--accent-purple);">Send Message</button>
-                </div>
+        {% if student.dynamic_risk_label == 'High' %}
+        <div style="background: rgba(239,68,68,0.08); border-left: 3px solid var(--accent-red); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items:center;">
+                <strong>Student #{{ student.student_id }}</strong>
+                <span style="color: var(--accent-red); font-weight: bold; font-size: 0.82rem;">Risk: {{ student.dynamic_risk_score }}/100</span>
+            </div>
+            <div style="font-size: 0.78rem; color: #94a3b8; margin: 4px 0;">{{ student.subject }} · {{ student.class_name }}</div>
+
+            <!-- Risk Drivers -->
+            {% for insight in student.insights %}
+            <p style="font-size: 0.79rem; color: #b91c1c; margin-top: 2px;">• {{ insight }}</p>
+            {% endfor %}
+
+            <!-- Before/After if logged -->
+            {% if student.improvement %}
+            <div style="margin-top: 8px; background: rgba(16,185,129,0.1); border-radius: 6px; padding: 6px 10px; font-size: 0.79rem; color: #6ee7b7;">
+                📈 Improvement after {{ student.improvement.intervention_type }}:
+                Attendance +{{ student.improvement.attendance_delta }}% | Marks +{{ student.improvement.marks_delta }}%
             </div>
             {% endif %}
+
+            <!-- Log Intervention inline -->
+            <textarea id="m-notes-{{ student.student_id }}" placeholder="Log action..."
+                style="width:100%; margin-top:8px; height:45px; padding:6px; background:rgba(240,244,255,0.8); border:1.5px solid var(--border-glass); color:var(--text-primary); border-radius:5px; font-size:0.78rem; resize: none;"></textarea>
+            <select id="m-type-{{ student.student_id }}" style="margin-top:4px; font-size:0.78rem;">
+                <option>Counselling Session</option>
+                <option>Remedial Class</option>
+                <option>Assignment Extension</option>
+                <option>Parent Meeting</option>
+            </select>
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="btn" style="flex:1; padding: 6px 10px; font-size: 0.78rem;" onclick="logIntervention({{ student.student_id }})">📋 Log</button>
+                <button class="btn" style="flex:1; padding: 6px 10px; font-size: 0.78rem; background: transparent; border: 1px solid var(--accent-purple);">📧 Message</button>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p style="color: var(--text-secondary);">No high-risk mentees found under current filters.</p>
         {% endfor %}
     </div>
 
-    <!-- General Tracking -->
-    <div class="glass-panel" style="flex: 2;">
-        <h3>All Mentees Performance Summary</h3>
-        <table style="width: 100%; margin-top: 16px; border-collapse: collapse; text-align: left;">
+    <!-- Right: Master List Table -->
+    <div class="glass-panel" style="flex: 2; min-width: 300px; overflow-x: auto;">
+        <h3 style="margin-bottom: 16px;">All Mentees — Master Analytics Table</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
             <thead>
                 <tr style="border-bottom: 1px solid var(--border-glass);">
-                    <th style="padding: 12px 8px; color: var(--text-secondary);">ID</th>
-                    <th style="padding: 12px 8px; color: var(--text-secondary);">Name</th>
-                    <th style="padding: 12px 8px; color: var(--text-secondary);">Subject</th>
-                    <th style="padding: 12px 8px; color: var(--text-secondary);">Status</th>
-                    <th style="padding: 12px 8px; color: var(--text-secondary);">Action</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">ID</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Subject</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Marks</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Internal</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Mid Exam</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Risk</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Improvement</th>
+                    <th style="padding: 10px 8px; color: var(--text-secondary);">Top Driver</th>
                 </tr>
             </thead>
             <tbody>
                 {% for student in students %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <td style="padding: 12px 8px;">{{ student.id }}</td>
-                    <td style="padding: 12px 8px;">{{ student.name }}</td>
-                    <td style="padding: 12px 8px;">{{ student.subject }}</td>
-                    <td style="padding: 12px 8px;">
-                        {% if student.is_high_risk %}
-                            <span style="color: var(--accent-red);">At Risk</span>
+                <tr style="border-bottom: 1px solid rgba(79,70,229,0.07);">
+                    <td style="padding: 10px 8px;">{{ student.student_id }}</td>
+                    <td style="padding: 10px 8px; font-size: 0.78rem;">{{ student.subject }}</td>
+                    <td style="padding: 10px 8px;">{{ student.marks }}%</td>
+                    <td style="padding: 10px 8px; color: var(--accent-blue);">{{ student.internal_marks }}/50</td>
+                    <td style="padding: 10px 8px; color: var(--accent-purple);">{{ student.mid_exam_marks }}/30</td>
+                    <td style="padding: 10px 8px;">
+                        {% if student.dynamic_risk_label == 'High' %}
+                            <span class="badge badge-red">{{ student.dynamic_risk_score }}</span>
+                        {% elif student.dynamic_risk_label == 'Medium' %}
+                            <span class="badge badge-gold">{{ student.dynamic_risk_score }}</span>
                         {% else %}
-                            <span style="color: var(--accent-green);">Stable</span>
+                            <span class="badge badge-green">{{ student.dynamic_risk_score }}</span>
                         {% endif %}
                     </td>
-                    <td style="padding: 12px 8px;">
-                        <button class="btn" style="padding: 4px 8px; font-size: 0.75rem;">Edit Profile</button>
+                    <td style="padding: 10px 8px; color: #6ee7b7; font-size: 0.78rem;">
+                        {% if student.improvement %}
+                            ↑ Att +{{ student.improvement.attendance_delta }}% | Marks +{{ student.improvement.marks_delta }}%
+                        {% else %}
+                            <span style="color: var(--text-secondary);">No intervention yet</span>
+                        {% endif %}
                     </td>
+                    <td style="padding: 10px 8px; font-size: 0.78rem; color: #b91c1c;">{{ student.insights[0] }}</td>
                 </tr>
+                {% else %}
+                <tr><td colspan="8" style="padding: 24px; text-align: center; color: var(--text-secondary);">No students match the current filters.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<div id="toast" style="display:none; position:fixed; bottom:24px; right:24px; background: var(--accent-green); color:white; padding: 12px 20px; border-radius: 10px; font-weight: 600; z-index: 999;"></div>
+
+<script>
+function logIntervention(sid) {
+    const notes = document.getElementById('m-notes-' + sid)?.value || document.getElementById('notes-' + sid)?.value || '';
+    const type = document.getElementById('m-type-' + sid)?.value || document.getElementById('type-' + sid)?.value || 'Counselling Session';
+    fetch('/intervene', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ student_id: sid, notes: notes, type: type })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const toast = document.getElementById('toast');
+        toast.textContent = '✅ ' + data.message;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3500);
+    });
+}
+</script>
 {% endblock %}
