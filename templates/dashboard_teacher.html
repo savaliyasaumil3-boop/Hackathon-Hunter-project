@@ -114,7 +114,7 @@
             <option>Parent Meeting</option>
         </select>
         <button class="btn" style="width: 100%; margin-top: 8px; padding: 8px; font-size: 0.82rem;"
-            onclick="logIntervention({{ student.student_id }})">📋 Log Intervention</button>
+            data-sid="{{ student.student_id }}" onclick="logIntervention(this.dataset.sid)">📋 Log Intervention</button>
     </div>
     {% else %}
     <div style="grid-column: 1/-1; text-align: center; padding: 48px; color: var(--text-secondary);">

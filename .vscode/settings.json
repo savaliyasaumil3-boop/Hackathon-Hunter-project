@@ -1,0 +1,13 @@
+{
+    "html.validate.scripts": false,
+    "html.validate.styles": false,
+    "emmet.includeLanguages": {
+        "jinja-html": "html"
+    },
+    "files.associations": {
+        "*.html": "jinja-html"
+    },
+    "[jinja-html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    }
+}

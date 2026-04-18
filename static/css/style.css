@@ -199,3 +199,71 @@ header a:hover {
 tbody tr:hover {
     background: rgba(79, 70, 229, 0.04);
 }
+
+/* ── Student Dashboard Utilities ─────────────────────── */
+.metric-col {
+    background: rgba(240, 244, 255, 0.5);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-glass);
+}
+
+.metric-row {
+    margin-bottom: 14px;
+}
+
+.metric-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    margin-bottom: 6px;
+}
+
+.bar-good { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+.bar-good-blue { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+.bar-danger { background: var(--accent-red); }
+.val-danger { color: var(--accent-red); font-weight: 600; }
+.val-good   { color: var(--accent-blue); font-weight: 600; }
+
+.risk-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+.risk-pill-high   { background: rgba(220,38,38,0.1);  color: var(--accent-red); }
+.risk-pill-medium { background: rgba(217,119,6,0.1);  color: var(--accent-gold); }
+.risk-pill-low    { background: rgba(5,150,105,0.1);  color: var(--accent-green); }
+
+.insight-ok  { background: rgba(5,150,105,0.07);  border-left: 3px solid var(--accent-green); border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; }
+.insight-bad { background: rgba(220,38,38,0.07);   border-left: 3px solid rgba(220,38,38,0.45); border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; }
+.insight-ok  p { font-size: 0.88rem; color: var(--accent-green); }
+.insight-bad p { font-size: 0.88rem; color: #b91c1c; }
+
+.chart-legend-val      { font-size: 1rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+.chart-legend-val.low  { color: var(--accent-red); }
+
+.chart-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.medium-alert {
+    background: rgba(217,119,6,0.08);
+    border: 1px solid rgba(217,119,6,0.4);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: var(--accent-gold);
+}
+
+.recommendation-box {
+    margin-top: 20px;
+    background: rgba(124,58,237,0.07);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}

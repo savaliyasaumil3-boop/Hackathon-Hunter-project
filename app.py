@@ -89,20 +89,24 @@ def calculate_risk(s, marks_entry):
     else:
         label = 'Low'
 
-    # Explainable Insights
-    factors = [
-        ('Attendance', attendance, 60),
-        ('Assignment Completion', assignment, 60),
-        ('Internal Marks', internal_pct, 50),
-        ('LMS Engagement', lms, 40),
+    # Explainable Insights — actionable messages per metric
+    insight_rules = [
+        ('Attendance', attendance, 60,
+         'Attendance is critically low ({val:.0f}%) — missing classes directly impacts exam eligibility.'),
+        ('Assignment Completion', assignment, 60,
+         'Assignment Completion is very low ({val:.0f}%) — submit pending work immediately to avoid grade penalties.'),
+        ('Internal Marks', internal_pct, 50,
+         'Internal Marks are below passing ({val:.0f}%) — revision and faculty support are strongly recommended.'),
+        ('LMS Engagement', lms, 40,
+         'LMS Engagement is critically low ({val:.0f}%) — log in regularly to access study material and announcements.'),
     ]
     insights = []
-    for name, val, threshold in factors:
+    for name, val, threshold, msg_template in insight_rules:
         if val < threshold:
-            insights.append(f'{name} is critically low ({val:.0f}%)')
+            insights.append(msg_template.format(val=val))
 
     if not insights:
-        insights.append('All metrics are within acceptable range.')
+        insights.append('All metrics are within acceptable range. Keep up the great work!')
 
     return score, label, insights
 

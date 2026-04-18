@@ -95,7 +95,8 @@
                 <option>Parent Meeting</option>
             </select>
             <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button class="btn" style="flex:1; padding: 6px 10px; font-size: 0.78rem;" onclick="logIntervention({{ student.student_id }})">📋 Log</button>
+                <button class="btn" style="flex:1; padding: 6px 10px; font-size: 0.78rem;"
+                    data-sid="{{ student.student_id }}" onclick="logIntervention(this.dataset.sid)">📋 Log</button>
                 <button class="btn" style="flex:1; padding: 6px 10px; font-size: 0.78rem; background: transparent; border: 1px solid var(--accent-purple);">📧 Message</button>
             </div>
         </div>
