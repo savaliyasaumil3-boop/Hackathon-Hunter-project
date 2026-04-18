@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Academic Hub{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div class="glass-panel" style="width: 100%; max-width: 400px; text-align: center;">
+        <h2 style="margin-bottom: 2rem;">Welcome Back</h2>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div style="text-align: left; margin-bottom: 1rem;">
+                <label for="role" style="color: var(--text-secondary); font-size: 0.9rem;">Select your role:</label>
+                <select name="role" id="role" required>
+                    <option value="student">Student</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="mentor">Faculty Mentor</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Login to Dashboard</button>
+        </form>
+        
+        <p style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.85rem;">
+            *For this hackathon prototype, authentication is simulated. Select a role to view its specific dashboard.
+        </p>
+    </div>
+</div>
+{% endblock %}

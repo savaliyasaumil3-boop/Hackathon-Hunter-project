@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <h2>Instructor Dashboard</h2>
+    <p style="color: var(--text-secondary);">Manage your class, evaluate exams, and provide targeted feedback.</p>
+</div>
+
+<div class="grid-container">
+    {% for student in students %}
+    <div class="glass-panel" style="{% if student.is_high_risk %}border-top: 4px solid var(--accent-red);{% else %}border-top: 4px solid var(--accent-green);{% endif %}">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3>{{ student.name }} ({{ student.id }})</h3>
+            {% if student.is_high_risk %}
+                <span style="background: rgba(239, 68, 68, 0.2); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">High Risk</span>
+            {% else %}
+                <span style="background: rgba(16, 185, 129, 0.2); color: var(--accent-green); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">On Track</span>
+            {% endif %}
+        </div>
+
+        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 12px;">
+            <p><strong>Assignments:</strong> {{ student.assignments_completed }} / {{ student.assignments_total }} completed</p>
+            <p><strong>Recent Exam:</strong> {{ student.exam_score }}% (Past: {{ student.past_exam_score }}%)</p>
+        </div>
+
+        <div style="margin-top: 16px;">
+            <label style="font-size: 0.85rem; color: var(--text-secondary);">Your Suggestion/Feedback:</label>
+            <textarea style="width: 100%; height: 60px; padding: 8px; margin-top: 4px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-glass); color: white; border-radius: 4px;">{{ student.teacher_suggestion }}</textarea>
+            <button class="btn" style="width: 100%; margin-top: 8px; padding: 8px;">Update Evaluation</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

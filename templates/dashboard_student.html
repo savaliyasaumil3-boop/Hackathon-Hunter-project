@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <h2>Welcome back, <span class="gradient-text">{{ student.name }}</span></h2>
+    <p style="color: var(--text-secondary);">Student ID: {{ student.id }} | View your academic progress below</p>
+</div>
+
+{% if student.is_high_risk %}
+<div class="glass-panel risk-alert">
+    ⚠️ <strong>High Risk Alert!</strong> You have been flagged as high risk for upcoming submissions in {{ student.subject }}. Please check the intervention suggestions below and schedule an extra class.
+</div>
+{% endif %}
+
+<div class="grid-container">
+    <!-- Academic Progress -->
+    <div class="glass-panel">
+        <h3>Subject Overview: {{ student.subject }}</h3>
+        
+        <div style="margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                <span>Assignments Completed</span>
+                <span>{{ student.assignments_completed }} / {{ student.assignments_total }}</span>
+            </div>
+            <div class="progress-container">
+                <div class="progress-bar" style="width: {{ (student.assignments_completed / student.assignments_total) * 100 }}%;"></div>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px;">
+             <h4>Current Exam Score: {{ student.exam_score }}%</h4>
+        </div>
+    </div>
+
+    <!-- Performance Chart -->
+    <div class="glass-panel">
+        <h3>Performance Before vs After</h3>
+        <canvas id="performanceChart"></canvas>
+    </div>
+</div>
+
+<div class="grid-container" style="margin-top: 24px;">
+    <!-- Teacher Suggestion -->
+    <div class="glass-panel" style="border-left: 4px solid var(--accent-blue);">
+        <h3 style="color: var(--accent-blue);">Teacher Suggestion</h3>
+        <p style="margin-top: 8px;">{{ student.teacher_suggestion }}</p>
+    </div>
+
+    <!-- Mentor Suggestion -->
+    <div class="glass-panel" style="border-left: 4px solid var(--accent-purple);">
+        <h3 style="color: var(--accent-purple);">Faculty Mentor Suggestion</h3>
+        <p style="margin-top: 8px;">{{ student.mentor_suggestion }}</p>
+        
+        {% if student.is_high_risk %}
+        <button class="btn" style="margin-top: 16px; background: var(--accent-red);">Request Extra Class</button>
+        {% endif %}
+    </div>
+</div>
+
+<div class="glass-panel" style="margin-top: 24px;">
+    <h3>Doubt Solving Portal</h3>
+    <textarea placeholder="Type your question here to send to your teacher/mentor..." style="width: 100%; height: 100px; padding: 12px; margin-top: 12px; border-radius: 8px; background: rgba(15, 23, 42, 0.5); color: white; border: 1px solid var(--border-glass);"></textarea>
+    <button class="btn" style="margin-top: 12px;">Submit Doubt</button>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Past Exam', 'Current Exam'],
+                datasets: [{
+                    label: 'Score %',
+                    data: [{{ student.past_exam_score }}, {{ student.exam_score }}],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(139, 92, 246, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(59, 130, 246, 1)',
+                        'rgba(139, 92, 246, 1)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

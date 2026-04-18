@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Academic Hub{% endtitle %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1 class="gradient-text">Academic Risk Detection Platform</h1>
+            <nav>
+                <a href="{{ url_for('login') }}" style="color: var(--text-secondary); text-decoration: none;">Logout</a>
+            </nav>
+        </header>
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

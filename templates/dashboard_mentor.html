@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Mentor Dashboard{% endblock %}
+
+{% block content %}
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <h2 style="color: var(--accent-purple);">Faculty Mentor Dashboard</h2>
+    <p style="color: var(--text-secondary);">Holistic tracking of mentee progress, interventions, and extra classes.</p>
+</div>
+
+<div style="display: flex; gap: 24px;">
+    <!-- High Risk Overview -->
+    <div class="glass-panel" style="flex: 1;">
+        <h3>Mentee Intervention Required</h3>
+        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px;">Students identified by the system requiring immediate mentor engagement.</p>
+        
+        {% for student in students %}
+            {% if student.is_high_risk %}
+            <div style="background: rgba(239, 68, 68, 0.1); padding: 12px; border-radius: 8px; border-left: 3px solid var(--accent-red); margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>{{ student.name }} ({{ student.subject }})</strong>
+                    <span style="color: var(--accent-red); font-weight: bold;">{{ student.exam_score }}%</span>
+                </div>
+                <p style="font-size: 0.85rem; margin-top: 4px;">{{ student.teacher_suggestion }}</p>
+                <div style="margin-top: 8px; display: flex; gap: 8px;">
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;">Schedule Extra Class</button>
+                    <button class="btn" style="padding: 6px 12px; font-size: 0.8rem; background: transparent; border: 1px solid var(--accent-purple);">Send Message</button>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- General Tracking -->
+    <div class="glass-panel" style="flex: 2;">
+        <h3>All Mentees Performance Summary</h3>
+        <table style="width: 100%; margin-top: 16px; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 1px solid var(--border-glass);">
+                    <th style="padding: 12px 8px; color: var(--text-secondary);">ID</th>
+                    <th style="padding: 12px 8px; color: var(--text-secondary);">Name</th>
+                    <th style="padding: 12px 8px; color: var(--text-secondary);">Subject</th>
+                    <th style="padding: 12px 8px; color: var(--text-secondary);">Status</th>
+                    <th style="padding: 12px 8px; color: var(--text-secondary);">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 12px 8px;">{{ student.id }}</td>
+                    <td style="padding: 12px 8px;">{{ student.name }}</td>
+                    <td style="padding: 12px 8px;">{{ student.subject }}</td>
+                    <td style="padding: 12px 8px;">
+                        {% if student.is_high_risk %}
+                            <span style="color: var(--accent-red);">At Risk</span>
+                        {% else %}
+                            <span style="color: var(--accent-green);">Stable</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 12px 8px;">
+                        <button class="btn" style="padding: 4px 8px; font-size: 0.75rem;">Edit Profile</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
