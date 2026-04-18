@@ -20,67 +20,114 @@
 </div>
 {% endif %}
 
-<div class="grid-container">
-    <!-- Metric Breakdown -->
-    <div class="glass-panel">
-        <h3 style="margin-bottom: 16px;">Current Metric Breakdown</h3>
+    <!-- Metric Breakdown (Side-by-Side) -->
+    <div class="glass-panel" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <h3 style="margin: 0;">Performance Tracking</h3>
+            <select id="subjectSelector" class="form-select" style="padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.9); font-size: 0.9rem; font-weight: 600; color: var(--text-primary); cursor: pointer; min-width: 200px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);" onchange="updateSubjectMetrics()">
+                <option value="Overall">Baseline (Overall)</option>
+                {% for sub in subjects %}
+                <option value="{{ sub }}">{{ sub }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <!-- Column 1: Overall (Static Baseline) -->
+            <div style="background: rgba(240,244,255,0.4); padding: 16px; border-radius: 12px; border: 1px solid var(--border-glass);">
+                <h4 style="margin-bottom: 16px; color: var(--text-primary);">Overall Average</h4>
+                
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>Marks</span><span>{{ student.marks }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{ student.marks }}%; background: {% if student.marks < 50 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};"></div>
+                    </div>
+                </div>
 
-        <div style="margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
-                <span>Overall Marks</span><span>{{ student.marks }}%</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar"
-                    style="width: {{ student.marks }}%; background: {% if student.marks < 50 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>Attendance</span><span>{{ student.attendance }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{ student.attendance }}%; background: {% if student.attendance < 60 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>Assignment Completion</span><span>{{ student.assignment }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{ student.assignment }}%; background: {% if student.assignment < 60 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>LMS Engagement</span><span>{{ student.lms }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: {{ student.lms }}%; background: {% if student.lms < 40 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 16px; padding: 12px; background: rgba(79,70,229,0.07); border-radius: 8px;">
+                    <h4>System Risk Score:
+                        <span style="{% if student.dynamic_risk_label == 'High' %}color: var(--accent-red);{% elif student.dynamic_risk_label == 'Medium' %}color: var(--accent-gold);{% else %}color: var(--accent-green);{% endif %}">
+                            {{ student.dynamic_risk_score }} / 100
+                        </span>
+                    </h4>
                 </div>
             </div>
-        </div>
 
-        <div style="margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
-                <span>Attendance</span><span>{{ student.attendance }}%</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar"
-                    style="width: {{ student.attendance }}%; background: {% if student.attendance < 60 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
+            <!-- Column 2: Subject Specific (Dynamic) -->
+            <div style="background: rgba(240,244,255,0.4); padding: 16px; border-radius: 12px; border: 1px solid var(--border-glass);">
+                <h4 style="margin-bottom: 16px; color: var(--accent-blue);" id="subjTitle">Subject View: Baseline (Overall)</h4>
+                
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>Marks</span><span id="subjMarksTxt">{{ student.marks }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="subjMarksBar" style="width: {{ student.marks }}%; background: {% if student.marks < 50 %}var(--accent-red){% else %}var(--accent-blue){% endif %}; transition: width 0.5s ease-out, background 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>Attendance</span><span id="subjAttTxt">{{ student.attendance }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="subjAttBar" style="width: {{ student.attendance }}%; background: {% if student.attendance < 60 %}var(--accent-red){% else %}var(--accent-blue){% endif %}; transition: width 0.5s ease-out, background 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>Assignment Completion</span><span id="subjAssignTxt">{{ student.assignment }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="subjAssignBar" style="width: {{ student.assignment }}%; background: {% if student.assignment < 60 %}var(--accent-red){% else %}var(--accent-blue){% endif %}; transition: width 0.5s ease-out, background 0.5s ease;"></div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
+                        <span>LMS Engagement</span><span id="subjLmsTxt">{{ student.lms }}%</span>
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="subjLmsBar" style="width: {{ student.lms }}%; background: {% if student.lms < 40 %}var(--accent-red){% else %}var(--accent-blue){% endif %}; transition: width 0.5s ease-out, background 0.5s ease;"></div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div style="margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
-                <span>Assignment Completion</span><span>{{ student.assignment }}%</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar"
-                    style="width: {{ student.assignment }}%; background: {% if student.assignment < 60 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 6px;">
-                <span>LMS Engagement</span><span>{{ student.lms }}%</span>
-            </div>
-            <div class="progress-container">
-                <div class="progress-bar"
-                    style="width: {{ student.lms }}%; background: {% if student.lms < 40 %}var(--accent-red){% else %}var(--gradient-primary){% endif %};">
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top: 16px; padding: 12px; background: rgba(79,70,229,0.07); border-radius: 8px;">
-            <h4>System Risk Score:
-                <span style="{% if student.dynamic_risk_label == 'High' %}color: var(--accent-red);{% elif student.dynamic_risk_label == 'Medium' %}color: var(--accent-gold);{% else %}color: var(--accent-green);{% endif %}">
-                    {{ student.dynamic_risk_score }} / 100
-                </span>
-                <span style="color: var(--text-secondary); font-size: 0.85rem;">({{ student.dynamic_risk_label }})</span>
-            </h4>
+            
         </div>
     </div>
 
     <!-- Explainable Insights -->
-    <div class="glass-panel">
+    <div class="glass-panel" style="margin-bottom: 24px;">
         <h3 style="margin-bottom: 16px;">⚡ Why You Are At Risk</h3>
         <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px;">
             These are the top contributing factors the system identified in your academic profile:
@@ -103,7 +150,6 @@
             </p>
         </div>
     </div>
-</div>
 
 <!-- Performance Distribution Pie Chart -->
 <div class="glass-panel" style="margin-top: 24px;">
@@ -157,7 +203,7 @@
 <script>
 (function() {
     const ctx = document.getElementById('performancePie').getContext('2d');
-    new Chart(ctx, {
+    window.myPieChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
             labels: ['Marks', 'Attendance', 'Assignment', 'LMS'],
@@ -190,6 +236,55 @@
             }
         }
     });
+
+    // Subject Tracking Logic
+    const subjectData = {{ subject_data | tojson | safe }};
+    const baseMarks = {{ student.marks }};
+    const baseAtt = {{ student.attendance }};
+    const baseAssign = {{ student.assignment }};
+    const baseLms = {{ student.lms }};
+
+    window.updateSubjectMetrics = function() {
+        const selector = document.getElementById('subjectSelector');
+        const subj = selector.value;
+        
+        let marks, att, assign, lms;
+        
+        if(subj === 'Overall') {
+            document.getElementById('subjTitle').innerText = 'Subject View: Baseline (Overall)';
+            marks = baseMarks; att = baseAtt; assign = baseAssign; lms = baseLms;
+        } else {
+            document.getElementById('subjTitle').innerText = 'Subject View: ' + subj;
+            if(subjectData[subj]) {
+                marks = subjectData[subj].marks;
+                att = subjectData[subj].attendance;
+                assign = subjectData[subj].assignment;
+                lms = subjectData[subj].lms;
+            } else {
+                marks = 0; att = 0; assign = 0; lms = 0;
+            }
+        }
+        updateBar('subjMarksBar', 'subjMarksTxt', marks, 50);
+        updateBar('subjAttBar', 'subjAttTxt', att, 60);
+        updateBar('subjAssignBar', 'subjAssignTxt', assign, 60);
+        updateBar('subjLmsBar', 'subjLmsTxt', lms, 40);
+
+        if (window.myPieChart) {
+            window.myPieChart.data.datasets[0].data = [marks, att, assign, lms];
+            window.myPieChart.update();
+        }
+    }
+
+    function updateBar(barId, txtId, val, threshold) {
+        document.getElementById(txtId).innerText = val + '%';
+        const bar = document.getElementById(barId);
+        bar.style.width = val + '%';
+        if(val < threshold) {
+            bar.style.background = 'var(--accent-red)';
+        } else {
+            bar.style.background = 'var(--accent-blue)';
+        }
+    }
 })();
 </script>
 

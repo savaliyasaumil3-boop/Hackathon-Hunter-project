@@ -10,6 +10,7 @@ app = Flask(__name__)
 DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'TS-PS12.json')
 MARKS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'internal_marks.json')
 INTERVENTIONS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'interventions.json')
+SUBJECT_METRICS_FILE = os.path.join(os.path.dirname(__file__), 'data', 'subject_metrics.json')
 
 # ---------- Subject & Class Mapping ----------
 SUBJECTS = ['Mathematics', 'Computer Science', 'Physics', 'Chemistry', 'English']
@@ -43,6 +44,13 @@ def load_interventions():
     if not os.path.exists(INTERVENTIONS_FILE):
         return {}
     with open(INTERVENTIONS_FILE, 'r') as f:
+        return json.load(f)
+
+
+def load_subject_metrics():
+    if not os.path.exists(SUBJECT_METRICS_FILE):
+        return {}
+    with open(SUBJECT_METRICS_FILE, 'r') as f:
         return json.load(f)
 
 
@@ -226,7 +234,11 @@ def student_dashboard():
     sid = request.args.get('sid', '4')
     students = load_data()
     marks_data = load_marks()
+    subject_metrics = load_subject_metrics()
+    
     current_student = next((s for s in students if str(s['student_id']) == sid), None)
+    subject_data_dict = {}
+    
     if current_student:
         marks_entry = marks_data.get(sid)
         dyn_score, dyn_label, insights = calculate_risk(current_student, marks_entry)
@@ -235,7 +247,9 @@ def student_dashboard():
         current_student['insights'] = insights
         current_student['subject'] = get_subject(current_student['student_id'])
         current_student['class_name'] = get_class(current_student['student_id'])
-    return render_template('dashboard_student.html', student=current_student)
+        subject_data_dict = subject_metrics.get(sid, {})
+        
+    return render_template('dashboard_student.html', student=current_student, subject_data=subject_data_dict, subjects=SUBJECTS)
 
 
 @app.route('/teacher')

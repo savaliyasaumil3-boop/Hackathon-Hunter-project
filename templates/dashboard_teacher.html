@@ -51,7 +51,7 @@
     {% for student in students %}
     <div class="glass-panel student-card" style="
         {% if student.dynamic_risk_label == 'High' %}border-top: 4px solid var(--accent-red);
-        {% elif student.dynamic_risk_label == 'Medium' %}border-top: 4px solid gold;
+        {% elif student.dynamic_risk_label == 'Medium' %}border-top: 4px solid var(--accent-gold);
         {% else %}border-top: 4px solid var(--accent-green);{% endif %}">
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -94,7 +94,7 @@
         {% if student.improvement %}
         <div style="background: rgba(16,185,129,0.08); border-left: 3px solid var(--accent-green); border-radius: 4px; padding: 8px 12px; margin-bottom: 12px;">
             <p style="font-size: 0.78rem; color: var(--accent-green); font-weight: 600; margin-bottom: 4px;">📈 Post-Intervention Improvement</p>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.8rem; color: #6ee7b7;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 0.8rem; color: var(--accent-green);">
                 <span>Attendance: +{{ student.improvement.attendance_delta }}%</span>
                 <span>Marks: +{{ student.improvement.marks_delta }}%</span>
                 <span>Assignment: +{{ student.improvement.assignment_delta }}%</span>

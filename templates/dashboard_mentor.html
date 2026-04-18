@@ -79,7 +79,7 @@
 
             <!-- Before/After if logged -->
             {% if student.improvement %}
-            <div style="margin-top: 8px; background: rgba(16,185,129,0.1); border-radius: 6px; padding: 6px 10px; font-size: 0.79rem; color: #6ee7b7;">
+            <div style="margin-top: 8px; background: rgba(16,185,129,0.1); border-radius: 6px; padding: 6px 10px; font-size: 0.79rem; color: var(--accent-green);">
                 📈 Improvement after {{ student.improvement.intervention_type }}:
                 Attendance +{{ student.improvement.attendance_delta }}% | Marks +{{ student.improvement.marks_delta }}%
             </div>
@@ -138,7 +138,7 @@
                             <span class="badge badge-green">{{ student.dynamic_risk_score }}</span>
                         {% endif %}
                     </td>
-                    <td style="padding: 10px 8px; color: #6ee7b7; font-size: 0.78rem;">
+                    <td style="padding: 10px 8px; color: var(--accent-green); font-size: 0.78rem;">
                         {% if student.improvement %}
                             ↑ Att +{{ student.improvement.attendance_delta }}% | Marks +{{ student.improvement.marks_delta }}%
                         {% else %}
