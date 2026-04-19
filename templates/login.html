@@ -10,7 +10,7 @@
         <form method="POST" action="{{ url_for('login') }}">
             <div style="text-align: left; margin-bottom: 1rem;">
                 <label for="role" style="color: var(--text-secondary); font-size: 0.9rem;">Select your role:</label>
-                <select name="role" id="role" required onchange="toggleStudentId()">
+                <select name="role" id="role" required onchange="toggleFields()">
                     <option value="student">Student</option>
                     <option value="teacher">Teacher</option>
                     <option value="mentor">Faculty Mentor</option>
@@ -21,15 +21,39 @@
                 <label for="student_id" style="color: var(--text-secondary); font-size: 0.9rem;">Enter Student ID:</label>
                 <input type="number" name="student_id" id="student_id" placeholder="e.g. 4" value="4">
             </div>
+
+            <div id="teacherDiv" style="text-align: left; margin-bottom: 1rem; display: none;">
+                <label for="teacher_name" style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 4px;">Teacher's Name:</label>
+                <input type="text" name="teacher_name" id="teacher_name" placeholder="e.g. Prof. Smith" style="margin-bottom: 12px; width: 100%;">
+                
+                <label for="teacher_subject" style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 4px;">Subject:</label>
+                <select name="teacher_subject" id="teacher_subject" style="width: 100%;">
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Physics">Physics</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="English">English</option>
+                </select>
+            </div>
+
+            <div id="mentorDiv" style="text-align: left; margin-bottom: 1rem; display: none;">
+                <label for="mentor_name" style="color: var(--text-secondary); font-size: 0.9rem; display: block; margin-bottom: 4px;">Mentor's Name:</label>
+                <input type="text" name="mentor_name" id="mentor_name" placeholder="e.g. Dr. Johnson" style="width: 100%;">
+            </div>
             
             <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Login to Dashboard</button>
         </form>
         
         <script>
-            function toggleStudentId() {
+            function toggleFields() {
                 var role = document.getElementById('role').value;
                 document.getElementById('studentIdDiv').style.display = (role === 'student') ? 'block' : 'none';
+                document.getElementById('teacherDiv').style.display = (role === 'teacher') ? 'block' : 'none';
+                document.getElementById('mentorDiv').style.display = (role === 'mentor') ? 'block' : 'none';
             }
+            
+            // Initialize on load
+            document.addEventListener('DOMContentLoaded', toggleFields);
         </script>
         
         <p style="margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.85rem;">

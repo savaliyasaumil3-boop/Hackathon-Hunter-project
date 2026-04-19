@@ -269,11 +269,29 @@
             msg.style.display = 'block';
             return;
         }
-        msg.style.color = 'var(--accent-green)';
-        msg.innerText = 'Your question has been submitted to your Mentor!';
-        msg.style.display = 'block';
-        ta.value = '';
-        setTimeout(function() { msg.style.display = 'none'; }, 4000);
+        
+        fetch('/api/submit_query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_id: '{{ student.student_id }}',
+                query: ta.value.trim()
+            })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                msg.style.color = 'var(--accent-green)';
+                msg.innerText = 'Your question has been submitted successfully!';
+                msg.style.display = 'block';
+                ta.value = '';
+            } else {
+                msg.style.color = 'var(--accent-red)';
+                msg.innerText = 'Error submitting question: ' + res.error;
+                msg.style.display = 'block';
+            }
+            setTimeout(function() { msg.style.display = 'none'; }, 4000);
+        });
     };
 }());
 </script>

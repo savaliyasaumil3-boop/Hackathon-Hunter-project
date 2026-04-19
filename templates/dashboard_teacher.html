@@ -4,8 +4,31 @@
 
 {% block content %}
 <div class="glass-panel" style="margin-bottom: 24px;">
-    <h2 class="gradient-text">Instructor Dashboard</h2>
+    <h2 class="gradient-text">Welcome, {{ teacher_name }}</h2>
     <p style="color: var(--text-secondary);">Multi-factor risk analytics | Filter students by class, subject and severity.</p>
+</div>
+
+<!-- Student Queries Section -->
+<div class="glass-panel" style="margin-bottom: 24px;">
+    <h3>💬 Recent Student Queries</h3>
+    {% if queries %}
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px; max-height: 300px; overflow-y: auto; padding-right: 8px;">
+        {% for query in queries %}
+            <div style="background: rgba(255,255,255,0.6); padding: 12px; border-radius: 8px; border-left: 4px solid var(--accent-blue);">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px;">
+                    <strong>Student #{{ query.student_id }}</strong>
+                    <span>{{ query.timestamp.split('T')[0] }} {{ query.timestamp.split('T')[1][:5] }}</span>
+                </div>
+                <p style="margin: 0; font-size: 0.95rem; color: var(--text-primary);">{{ query.query }}</p>
+                <div style="margin-top: 8px; text-align: right;">
+                    <span class="badge" style="background: var(--accent-purple); color: white;">{{ query.status }}</span>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">No open queries at the moment.</p>
+    {% endif %}
 </div>
 
 <!-- Search & Filter Row -->
@@ -49,10 +72,10 @@
 <!-- Student Cards -->
 <div class="grid-container">
     {% for student in students %}
-    <div class="glass-panel student-card" style="
-        {% if student.dynamic_risk_label == 'High' %}border-top: 4px solid var(--accent-red);
-        {% elif student.dynamic_risk_label == 'Medium' %}border-top: 4px solid var(--accent-gold);
-        {% else %}border-top: 4px solid var(--accent-green);{% endif %}">
+    <div class="glass-panel student-card" 
+        {% if student.dynamic_risk_label == 'High' %}style="border-top: 4px solid var(--accent-red);"
+        {% elif student.dynamic_risk_label == 'Medium' %}style="border-top: 4px solid var(--accent-gold);"
+        {% else %}style="border-top: 4px solid var(--accent-green);"{% endif %}>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <div>
@@ -69,11 +92,21 @@
         </div>
 
         <!-- Metrics Grid -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-weight: 600; font-size: 0.9rem;">Performance Metrics</span>
+            <button class="btn" style="padding: 4px 10px; font-size: 0.75rem; background: var(--accent-blue);" 
+                data-sid="{{ student.student_id }}"
+                data-marks="{{ student.marks }}"
+                data-attendance="{{ student.attendance }}"
+                data-assignment="{{ student.assignment }}"
+                data-lms="{{ student.lms }}"
+                onclick="openEditModal(this.dataset.sid, this.dataset.marks, this.dataset.attendance, this.dataset.assignment, this.dataset.lms)">✏️ Edit</button>
+        </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">
-            <p><strong style="color: var(--text-primary);">Marks:</strong> {{ student.marks }}%</p>
-            <p><strong style="color: var(--text-primary);">Attendance:</strong> {{ student.attendance }}%</p>
-            <p><strong style="color: var(--text-primary);">Assignment:</strong> {{ student.assignment }}%</p>
-            <p><strong style="color: var(--text-primary);">LMS:</strong> {{ student.lms }}</p>
+            <p><strong style="color: var(--text-primary);">Marks:</strong> <span id="m-{{student.student_id}}">{{ student.marks }}</span>%</p>
+            <p><strong style="color: var(--text-primary);">Attendance:</strong> <span id="a-{{student.student_id}}">{{ student.attendance }}</span>%</p>
+            <p><strong style="color: var(--text-primary);">Assignment:</strong> <span id="as-{{student.student_id}}">{{ student.assignment }}</span>%</p>
+            <p><strong style="color: var(--text-primary);">LMS:</strong> <span id="l-{{student.student_id}}">{{ student.lms }}</span></p>
         </div>
 
         <!-- Restricted Exam Data -->
@@ -125,7 +158,78 @@
 
 <div id="toast" style="display:none; position:fixed; bottom:24px; right:24px; background: var(--accent-green); color:white; padding: 12px 20px; border-radius: 10px; font-weight: 600; z-index: 999; transition: opacity 0.3s;"></div>
 
+<!-- Edit Performance Modal -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="glass-panel" style="width: 400px; max-width: 90%; background: white;">
+        <h3 style="margin-bottom: 16px;">Edit Performance (Student #<span id="editSid"></span>)</h3>
+        <div style="display: grid; gap: 12px;">
+            <div><label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Marks (%)</label>
+                 <input type="number" id="editMarks" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit;"></div>
+            <div><label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Attendance (%)</label>
+                 <input type="number" id="editAttendance" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit;"></div>
+            <div><label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Assignment (%)</label>
+                 <input type="number" id="editAssignment" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit;"></div>
+            <div><label style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">LMS Engagement</label>
+                 <input type="number" id="editLms" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-family: inherit;"></div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+            <button class="btn" style="background: var(--text-secondary);" onclick="closeEditModal()">Cancel</button>
+            <button class="btn" onclick="savePerformance()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
 <script>
+let currentEditSid = null;
+
+function openEditModal(sid, marks, attendance, assignment, lms) {
+    currentEditSid = sid;
+    document.getElementById('editSid').innerText = sid;
+    document.getElementById('editMarks').value = marks;
+    document.getElementById('editAttendance').value = attendance;
+    document.getElementById('editAssignment').value = assignment;
+    document.getElementById('editLms').value = lms;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function savePerformance() {
+    const data = {
+        student_id: currentEditSid,
+        marks: parseFloat(document.getElementById('editMarks').value),
+        attendance: parseFloat(document.getElementById('editAttendance').value),
+        assignment: parseFloat(document.getElementById('editAssignment').value),
+        lms: parseInt(document.getElementById('editLms').value)
+    };
+    
+    fetch('/api/update_performance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            const toast = document.getElementById('toast');
+            toast.textContent = '✅ ' + res.message;
+            toast.style.display = 'block';
+            toast.style.opacity = 1;
+            setTimeout(() => { toast.style.opacity = 0; setTimeout(() => { toast.style.display = 'none'; }, 300); }, 3000);
+            closeEditModal();
+            
+            document.getElementById('m-'+currentEditSid).innerText = data.marks;
+            document.getElementById('a-'+currentEditSid).innerText = data.attendance;
+            document.getElementById('as-'+currentEditSid).innerText = data.assignment;
+            document.getElementById('l-'+currentEditSid).innerText = data.lms;
+        } else {
+            alert('Error updating performance: ' + res.error);
+        }
+    });
+}
+
 function logIntervention(sid) {
     const notes = document.getElementById('notes-' + sid).value;
     const type = document.getElementById('type-' + sid).value;
