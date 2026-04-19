@@ -236,7 +236,7 @@ def get_filtered_students(req_args, include_marks=True):
 # ---------- Routes ----------
 @app.route('/')
 def home():
-    return redirect(url_for('login'))
+    return render_template('get_started.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
