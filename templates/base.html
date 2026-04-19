@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Academic Hub{% endblock %}</title>
+    <title>{% block title %}EduPlus+{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div style="max-width: 1200px; margin: 0 auto;">
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-            <h1 class="gradient-text">Academic Risk Detection Platform</h1>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="EduPlus+ Logo" style="height: 48px; width: auto; border-radius: 8px;">
+                <h1 class="gradient-text" style="font-size: 2rem; margin: 0;">EduPlus+</h1>
+            </div>
             <nav>
                 <a href="{{ url_for('login') }}" style="color: var(--text-secondary); text-decoration: none;">Logout</a>
             </nav>
