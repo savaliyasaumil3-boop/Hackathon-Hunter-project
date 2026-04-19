@@ -260,6 +260,16 @@
         el.style.background = el.dataset.color;
     });
 
+    // Initialize Overall progress bars using data-width
+    document.querySelectorAll('.progress-bar[data-width]').forEach(function(bar) {
+        bar.style.width = bar.dataset.width + '%';
+    });
+
+    // Initialize Subject progress bars
+    if (typeof window.updateSubjectMetrics === 'function') {
+        window.updateSubjectMetrics();
+    }
+
     window.submitDoubt = function () {
         var ta = document.getElementById('doubtText');
         var msg = document.getElementById('doubtMsg');
