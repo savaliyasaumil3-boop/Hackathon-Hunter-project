@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Get Started - EduPlus{% endblock %}
+
+{% block content %}
+<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 75vh; text-align: center; padding: 2rem;">
+    
+    <div style="max-width: 800px;">
+        <h1 style="font-size: 3.5rem; margin-bottom: 1rem; line-height: 1.2;" class="gradient-text">
+            Empower Your Educational Journey
+        </h1>
+        
+        <p style="font-size: 1.2rem; color: var(--text-secondary); margin-bottom: 2.5rem; line-height: 1.6;">
+            EduPlus provides advanced insights, analytics, and tailored interventions. 
+            Identify academic risks early and foster an environment where every student can thrive.
+        </p>
+        
+        <div style="display: flex; gap: 1.5rem; justify-content: center;">
+            <a href="{{ url_for('login') }}" class="btn" style="font-size: 1.1rem; padding: 0.8rem 2.5rem; text-decoration: none; border-radius: 30px; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3); transition: transform 0.2s, box-shadow 0.2s;">
+                Get Started
+            </a>
+            <a href="#features" style="font-size: 1.1rem; padding: 0.8rem 2.5rem; text-decoration: none; border-radius: 30px; border: 2px solid var(--border-color); color: var(--text-primary); transition: all 0.2s;" onmouseover="this.style.borderColor='var(--primary-color)'; this.style.color='var(--primary-color)';" onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-primary)';">
+                Learn More
+            </a>
+        </div>
+    </div>
+    
+    <div id="features" style="display: flex; gap: 2rem; margin-top: 5rem; flex-wrap: wrap; justify-content: center;">
+        <div class="glass-panel" style="flex: 1; min-width: 250px; max-width: 300px; padding: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">👩‍🎓</div>
+            <h3 style="margin-bottom: 0.5rem;">For Students</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Track your performance, view tailored insights, and get the support you need to succeed.</p>
+        </div>
+        
+        <div class="glass-panel" style="flex: 1; min-width: 250px; max-width: 300px; padding: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">👨‍🏫</div>
+            <h3 style="margin-bottom: 0.5rem;">For Teachers</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Monitor class progress, identify at-risk students, and deliver timely interventions.</p>
+        </div>
+        
+        <div class="glass-panel" style="flex: 1; min-width: 250px; max-width: 300px; padding: 2rem;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">🤝</div>
+            <h3 style="margin-bottom: 0.5rem;">For Mentors</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Manage high-risk cases and track the effectiveness of your counseling sessions.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
